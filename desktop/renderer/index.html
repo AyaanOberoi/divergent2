@@ -1,0 +1,1205 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;"
+    />
+    <title>Metriq</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="theme-init.js"></script>
+  </head>
+  <body>
+    <!-- Phase 6 — global Metriq search (Cmd/Ctrl+K) -->
+    <div id="global-search-overlay" class="gs-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="gs-title">
+      <div class="gs-panel">
+        <div class="gs-header">
+          <svg class="icon icon-sm gs-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" />
+          </svg>
+          <input id="gs-input" class="gs-input" type="search" placeholder="Search code, prompts, usage…" autocomplete="off" aria-label="Global search" />
+          <kbd class="gs-kbd">Esc</kbd>
+        </div>
+        <p id="gs-hint" class="gs-hint muted">Type to search across the active project, previous prompts, and usage sessions.</p>
+        <div id="gs-results" class="gs-results"></div>
+        <div id="gs-empty" class="gs-empty muted hidden">No matches. Try different keywords, or index a project in Settings.</div>
+      </div>
+    </div>
+
+    <main id="app">
+      <!-- Logged-out view -->
+      <section id="view-login" class="view">
+        <div class="brand">
+          <img class="brand-mark" src="assets/metriq-logo.jpg" alt="" />
+          <span class="brand-name">Metriq</span>
+        </div>
+        <h1>Sign in to get started</h1>
+        <p class="muted">
+          Metriq opens your browser to sign in securely, then hands control back here automatically.
+        </p>
+        <button id="btn-login" class="btn btn-primary">Log in</button>
+        <button id="btn-signup" class="btn btn-secondary">Create an account</button>
+        <p class="waiting hidden" id="waiting-msg">Waiting for you to finish in the browser…</p>
+      </section>
+
+      <!-- Logged-in app shell -->
+      <div id="view-home" class="app-shell hidden">
+        <nav class="sidebar" aria-label="Primary">
+          <div class="sidebar-brand">
+            <img class="brand-mark" src="assets/metriq-logo.jpg" alt="" />
+          </div>
+
+          <div class="sidebar-nav">
+            <button class="nav-btn is-active" data-page="overview" title="Overview" aria-label="Overview">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 10.5 12 3l9 7.5" />
+                <path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5" />
+              </svg>
+            </button>
+            <button class="nav-btn" data-page="prompt-studio" title="Prompt Studio" aria-label="Prompt Studio">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z" />
+              </svg>
+            </button>
+            <button class="nav-btn" data-page="projects" title="Projects" aria-label="Projects">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z" />
+              </svg>
+            </button>
+            <button class="nav-btn" data-page="usage" title="Usage" aria-label="Usage">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 3v18h18" />
+                <path d="M7 14l3-3 3 3 5-6" />
+              </svg>
+            </button>
+            <button class="nav-btn" data-page="sustainability" title="Impact" aria-label="Impact">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 20A7 7 0 0 1 4 13c0-4 3-9 10-11 1 6 1 10-1 13a6.97 6.97 0 0 1-2 5Z" />
+                <path d="M9.5 14.5 18 6" />
+              </svg>
+            </button>
+            <button class="nav-btn" data-page="settings" title="Settings" aria-label="Settings">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+                <path
+                  d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"
+                />
+              </svg>
+            </button>
+          </div>
+
+          <div class="sidebar-footer">
+            <button id="btn-toggle-theme-rail" class="sidebar-icon-btn" title="Toggle theme" aria-label="Toggle theme">
+              <svg id="theme-toggle-icon-rail" class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></svg>
+            </button>
+            <button id="btn-sidebar-avatar" class="sidebar-avatar" data-page="settings" title="Account" aria-label="Account">
+              <span id="avatar-initial">?</span>
+            </button>
+          </div>
+        </nav>
+
+        <div class="main-column">
+        <div class="page-content">
+          <!-- Overview -->
+          <section id="page-overview" class="page">
+            <!-- Hero: the page's focal point — greeting, one-line pitch, and
+                 the app's two entry actions. Same IPC wiring as before
+                 (btn-open-capture / capture-hotkey-label ids unchanged). -->
+            <header class="ov-hero">
+              <p id="ov-date" class="ov-hero-eyebrow"></p>
+              <h1 class="ov-hero-title">Welcome back<span id="ov-hero-name"></span></h1>
+              <p class="ov-hero-sub">
+                Analyze prompts against your real codebase, track the tokens you save, and keep your AI coding
+                workflow focused.
+              </p>
+              <div class="ov-hero-actions">
+                <button id="btn-open-capture" class="ov-btn-primary">
+                  <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z" />
+                  </svg>
+                  Analyze prompt
+                  <span id="capture-hotkey-label" class="ov-hotkey"></span>
+                </button>
+                <button id="btn-goto-studio" class="ov-btn-secondary">
+                  <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 20h9" />
+                    <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                  </svg>
+                  Open Prompt Studio
+                </button>
+              </div>
+            </header>
+
+            <!-- Metrics row — all four numbers are real local data -->
+            <div class="ov-metrics">
+              <div class="ov-metric">
+                <div class="ov-metric-top">
+                  <span class="ov-metric-icon">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10Z" />
+                      <path d="m9 10 2 2 4-4" />
+                    </svg>
+                  </span>
+                  <span class="ov-metric-label">Prompts checked</span>
+                </div>
+                <span class="ov-metric-value" id="stat-captures">0</span>
+                <span class="ov-metric-sub">All-time on this device</span>
+              </div>
+              <div class="ov-metric ov-metric-accent">
+                <div class="ov-metric-top">
+                  <span class="ov-metric-icon">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="m12 2 9 5-9 5-9-5 9-5Z" />
+                      <path d="m3 12 9 5 9-5" />
+                    </svg>
+                  </span>
+                  <span class="ov-metric-label">Tokens saved</span>
+                </div>
+                <span class="ov-metric-value" id="stat-tokens-saved">0</span>
+                <span class="ov-metric-sub">Exploration cost avoided</span>
+              </div>
+              <div class="ov-metric">
+                <div class="ov-metric-top">
+                  <span class="ov-metric-icon">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M19 5 5 19" />
+                      <circle cx="6.5" cy="6.5" r="2.5" />
+                      <circle cx="17.5" cy="17.5" r="2.5" />
+                    </svg>
+                  </span>
+                  <span class="ov-metric-label">Avg. reduction</span>
+                </div>
+                <span class="ov-metric-value" id="ov-stat-avg-pct">0%</span>
+                <span class="ov-metric-sub">Per checked prompt</span>
+              </div>
+              <div class="ov-metric">
+                <div class="ov-metric-top">
+                  <span class="ov-metric-icon">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z" />
+                    </svg>
+                  </span>
+                  <span class="ov-metric-label">Linked projects</span>
+                </div>
+                <span class="ov-metric-value" id="ov-stat-projects">0</span>
+                <span class="ov-metric-sub">Local folders indexed</span>
+              </div>
+            </div>
+
+            <!-- Workspace zone: project + activity on the left, suggestions
+                 on the right (stacks to one column in the default window) -->
+            <div class="ov-grid">
+              <div class="ov-col-main">
+                <section class="ov-panel" aria-labelledby="ov-project-title">
+                  <div class="ov-panel-header">
+                    <h2 id="ov-project-title" class="ov-panel-title">Active project</h2>
+                    <button id="btn-goto-projects" class="link-btn">Manage</button>
+                  </div>
+                  <div id="overview-active-project" class="ov-panel-body"></div>
+                </section>
+
+                <section class="ov-panel" aria-labelledby="ov-activity-title">
+                  <div class="ov-panel-header">
+                    <h2 id="ov-activity-title" class="ov-panel-title">Recent activity</h2>
+                  </div>
+                  <div class="ov-panel-body">
+                    <ol id="recent-activity-list" class="ov-timeline"></ol>
+                    <div id="recent-activity-empty" class="ov-empty">
+                      <div class="ov-empty-icon">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                          <circle cx="12" cy="12" r="9" />
+                          <path d="M12 7v5l3 2" />
+                        </svg>
+                      </div>
+                      <p class="ov-empty-title">No activity yet</p>
+                      <p class="ov-empty-desc">
+                        Every prompt you check lands here as a timeline, with the tokens each rewrite saved.
+                      </p>
+                      <button id="btn-ov-first-prompt" class="ov-btn-secondary">Check your first prompt</button>
+                    </div>
+                  </div>
+                </section>
+              </div>
+
+              <aside class="ov-col-side">
+                <section class="ov-panel" aria-labelledby="ov-insights-title">
+                  <div class="ov-panel-header">
+                    <h2 id="ov-insights-title" class="ov-panel-title">Suggestions</h2>
+                  </div>
+                  <div id="ov-insights" class="ov-panel-body ov-insights"></div>
+                </section>
+
+              </aside>
+            </div>
+          </section>
+
+          <!-- Prompt Studio -->
+          <section id="page-prompt-studio" class="page hidden">
+            <header class="ps-header">
+              <div>
+                <h1 class="page-title">Prompt Studio</h1>
+                <p class="muted page-subtitle">
+                  Write, refine, and analyze prompts before sending them to your preferred AI model.
+                </p>
+              </div>
+              <span id="ps-header-badge" class="capture-badge ps-header-badge">Ready</span>
+            </header>
+
+            <div class="ps-editor-card">
+              <div id="ps-context" class="ps-context-row"></div>
+
+              <textarea
+                id="ps-input"
+                class="ps-input"
+                placeholder="Describe what you'd like your AI assistant to accomplish&#10;&#10;Create a React dashboard for...&#10;Explain this code...&#10;Optimize this SQL query..."
+              ></textarea>
+
+              <div class="ps-toolbar">
+                <div class="ps-toolbar-meta">
+                  <span id="ps-char-count" class="ps-toolbar-stat">0 characters</span>
+                  <span class="ps-toolbar-divider" aria-hidden="true"></span>
+                  <span id="ps-token-estimate" class="ps-toolbar-stat">0 tokens</span>
+                </div>
+                <button id="ps-btn-clear" class="link-btn" type="button">Clear</button>
+              </div>
+            </div>
+
+            <div id="ps-status-banner" class="alert ps-status-banner" data-variant="info">
+              <svg class="icon icon-sm alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 11v5M12 8h.01" />
+              </svg>
+              <p class="alert-message">
+                <strong>Live analysis ready.</strong> We'll start analyzing your prompt as soon as you start typing.
+              </p>
+            </div>
+
+            <div id="ps-results" class="hidden">
+              <div class="ps-score-row">
+                <span id="ps-rating" class="capture-badge"></span>
+                <span id="ps-score" class="ps-score"></span>
+                <span id="ps-savings" class="ps-savings"></span>
+              </div>
+
+              <div id="ps-issues-block" class="section-block hidden">
+                <div class="section-header">
+                  <h2>What's flagged</h2>
+                </div>
+                <ul id="ps-issues" class="ps-issues"></ul>
+              </div>
+
+              <div id="ps-files-block" class="section-block hidden">
+                <div class="section-header">
+                  <h2>Relevant files found</h2>
+                  <span id="ps-context-source" class="ps-context-source muted"></span>
+                </div>
+                <div id="ps-files" class="ps-files"></div>
+                <details id="ps-why-files" class="ps-why-files hidden">
+                  <summary>Why these files?</summary>
+                  <ul id="ps-why-list" class="ps-why-list"></ul>
+                </details>
+              </div>
+
+              <div id="ps-similar-block" class="section-block hidden">
+                <div class="section-header">
+                  <h2>Similar previous tasks</h2>
+                </div>
+                <ul id="ps-similar-list" class="ps-similar-list"></ul>
+              </div>
+
+              <div class="section-block">
+                <div class="section-header">
+                  <h2>Focused rewrite</h2>
+                  <button id="ps-btn-copy" class="link-btn">Copy</button>
+                </div>
+                <p id="ps-focused" class="ps-focused"></p>
+                <button id="ps-btn-snapshot" class="pill-action ps-snapshot-btn">Save snapshot</button>
+              </div>
+            </div>
+
+            <div class="section-block ps-history-block">
+              <div class="section-header">
+                <h2>Revision history</h2>
+              </div>
+
+              <ol id="ps-history-list" class="ps-history-list"></ol>
+
+              <div id="ps-history-empty" class="empty-state">
+                <div class="empty-state-icon-frame">
+                  <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 12a9 9 0 1 0 3-6.7" />
+                    <path d="M3 3v5h5" />
+                    <path d="M12 7v5l3 2" />
+                  </svg>
+                </div>
+                <p class="empty-state-title">No revisions yet</p>
+                <p class="muted">Every saved version of your prompt will appear here.</p>
+                <button id="ps-btn-snapshot-empty" class="pill-action" type="button">Save snapshot</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- Projects -->
+          <section id="page-projects" class="page hidden">
+            <header class="proj-header">
+              <div class="proj-header-text">
+                <h1 class="page-title">Projects</h1>
+                <p class="muted page-subtitle">Manage the repositories available to your AI assistant.</p>
+              </div>
+              <div class="proj-header-actions">
+                <button id="btn-link-project" class="proj-btn-primary">
+                  <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 5v14M5 12h14" />
+                  </svg>
+                  Link Folder
+                </button>
+                <button id="btn-link-github" class="proj-btn-secondary">
+                  <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="9" r="5" />
+                    <path d="M7 13v3a2 2 0 0 0 2 2M17 13v3a2 2 0 0 1-2 2M9 9h.01M15 9h.01M6 20l1.5-2M18 20l-1.5-2" />
+                  </svg>
+                  Import GitHub
+                </button>
+              </div>
+            </header>
+
+            <form id="github-link-form" class="github-link-form hidden">
+              <input
+                id="github-url-input"
+                class="github-url-input"
+                type="text"
+                placeholder="https://github.com/owner/repo"
+                autocomplete="off"
+                spellcheck="false"
+              />
+              <button type="submit" id="btn-github-submit" class="proj-btn-primary proj-btn-compact">Link</button>
+              <button type="button" id="btn-github-cancel" class="link-btn">Cancel</button>
+            </form>
+
+            <div id="projects-error" class="alert hidden"></div>
+
+            <ul id="projects-list" class="projects-list"></ul>
+
+            <div id="projects-empty" class="proj-empty hidden">
+              <div class="proj-empty-card">
+                <div class="proj-empty-illustration" aria-hidden="true">
+                  <svg viewBox="0 0 64 64" fill="none">
+                    <path
+                      d="M14 20a4 4 0 0 1 4-4h9l4 5h15a4 4 0 0 1 4 4v19a4 4 0 0 1-4 4H18a4 4 0 0 1-4-4V20Z"
+                      stroke="var(--accent-primary)"
+                      stroke-width="2"
+                      stroke-linejoin="round"
+                    />
+                    <path d="M32 30v12M26 36h12" stroke="var(--accent-primary)" stroke-width="2" stroke-linecap="round" />
+                  </svg>
+                </div>
+                <h2 class="proj-empty-title">Welcome to Projects</h2>
+                <p class="proj-empty-desc">
+                  Link a local folder or GitHub repository to allow the AI to understand your codebase.
+                </p>
+                <div class="proj-empty-actions">
+                  <button id="btn-link-project-empty" class="proj-btn-primary">
+                    <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M12 5v14M5 12h14" />
+                    </svg>
+                    Link Folder
+                  </button>
+                  <button id="btn-link-github-empty" class="proj-btn-secondary">
+                    <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="9" r="5" />
+                      <path d="M7 13v3a2 2 0 0 0 2 2M17 13v3a2 2 0 0 1-2 2M9 9h.01M15 9h.01M6 20l1.5-2M18 20l-1.5-2" />
+                    </svg>
+                    Import GitHub Repository
+                  </button>
+                </div>
+              </div>
+
+              <div class="proj-capabilities">
+                <h3 class="proj-capabilities-title">What you can do</h3>
+                <ul class="proj-capabilities-list">
+                  <li>
+                    <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7 9 18l-5-5" /></svg>
+                    Ask questions about your code
+                  </li>
+                  <li>
+                    <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7 9 18l-5-5" /></svg>
+                    Search across files instantly
+                  </li>
+                  <li>
+                    <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7 9 18l-5-5" /></svg>
+                    Generate implementations
+                  </li>
+                  <li>
+                    <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7 9 18l-5-5" /></svg>
+                    Detect bugs
+                  </li>
+                  <li>
+                    <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7 9 18l-5-5" /></svg>
+                    Review architecture
+                  </li>
+                </ul>
+              </div>
+
+              <div class="proj-empty-footer">
+                <button id="btn-open-docs" class="link-btn">Documentation</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- Usage -->
+          <section id="page-usage" class="page hidden">
+            <header class="usg-header">
+              <div class="usg-header-copy">
+                <h1 id="usage-title" class="page-title">Claude Usage</h1>
+                <p class="muted page-subtitle">
+                  Imported from local agent logs on this machine.
+                </p>
+                <div id="usage-source-tabs" class="usg-source-tabs" role="tablist" aria-label="Coding agent"></div>
+              </div>
+              <div class="usg-header-actions">
+                <div id="usage-range" class="usg-range">
+                  <button class="usage-range-btn" data-days="7">7 Days</button>
+                  <button class="usage-range-btn is-active" data-days="30">30 Days</button>
+                  <button class="usage-range-btn" data-days="90">90 Days</button>
+                </div>
+                <button id="btn-refresh-usage" class="ov-btn-secondary usg-refresh-btn" type="button">
+                  <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12a9 9 0 1 1-2.6-6.4" /><path d="M21 4v6h-6" />
+                  </svg>
+                  Refresh
+                </button>
+              </div>
+            </header>
+
+            <div id="usage-empty" class="empty-state hidden">
+              <div class="empty-state-icon-frame">
+                <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 3v18h18" />
+                  <path d="m19 9-5 5-4-4-3 3" />
+                </svg>
+              </div>
+              <p id="usage-empty-title" class="empty-state-title">No usage logs found yet</p>
+              <p id="usage-empty-body" class="muted">Use Claude Code or Codex on this machine, then check back here.</p>
+              <div id="usage-detected-sources" class="usg-detected-sources hidden"></div>
+            </div>
+
+            <div id="usage-content" class="hidden">
+              <div id="usage-banners" class="usg-banners"></div>
+              <div class="usg-metrics" id="usage-tiles"></div>
+
+              <div class="usg-two-col">
+                <section class="usg-card usg-chart-card" aria-labelledby="usg-chart-title">
+                  <div class="usg-chart-header">
+                    <div>
+                      <h2 id="usg-chart-title">Daily usage</h2>
+                      <p class="muted usage-daily-caption">Hover a day to see what useful tokens accomplished and what caused wasted tokens.</p>
+                    </div>
+                    <div id="usage-chart-legend" class="usg-chart-legend"></div>
+                  </div>
+                  <div id="usage-chart-inspector" class="usg-chart-inspector"></div>
+                  <div id="usage-daily-chart" class="usage-bars usg-bars-lg"></div>
+                  <div id="usage-daily-labels" class="usage-daily-labels"></div>
+                </section>
+
+                <section class="usg-card" aria-labelledby="usg-limits-title">
+                  <div class="section-header">
+                    <h2 id="usg-limits-title">Session limits (5-hour windows)</h2>
+                  </div>
+                  <div id="usage-limits" class="usg-limits"></div>
+                </section>
+              </div>
+
+              <section id="usage-current-session" class="usg-card hidden" aria-labelledby="usg-current-session-title">
+                <div class="section-header">
+                  <h2 id="usg-current-session-title">This session</h2>
+                </div>
+                <div id="usage-current-session-body" class="usg-current-session"></div>
+              </section>
+
+              <section class="usg-card usg-impact-card" aria-labelledby="usg-impact-title">
+                <div class="usg-impact-header">
+                  <div>
+                    <span class="usg-impact-eyebrow">Sustainability</span>
+                    <h2 id="usg-impact-title">How your tokens affect the world around you</h2>
+                    <p class="muted">A transparent benchmark-equivalent view of water, electricity, and carbon impact.</p>
+                  </div>
+                  <span class="usg-impact-estimate-badge">Estimate, not a meter reading</span>
+                </div>
+                <div id="usage-impact-body" class="usg-impact-body"></div>
+              </section>
+
+              <section class="usg-card" aria-labelledby="usg-insights-title">
+                <div class="section-header">
+                  <h2 id="usg-insights-title">How to reduce your token usage</h2>
+                </div>
+                <div id="usage-insights" class="usage-insights"></div>
+              </section>
+
+              <section class="usg-card" aria-labelledby="usg-models-title">
+                <div class="section-header">
+                  <h2 id="usg-models-title">By model</h2>
+                </div>
+                <div id="usage-models" class="usg-model-cards"></div>
+              </section>
+
+              <section class="usg-card" aria-labelledby="usg-sessions-title">
+                <div class="section-header usg-sessions-head">
+                  <h2 id="usg-sessions-title">Recent sessions</h2>
+                  <input id="usage-search" class="input usg-search" type="text" placeholder="Search: expensive auth, low cache, project…" />
+                </div>
+                <p id="usage-search-source" class="muted usg-search-source hidden"></p>
+                <div class="usg-table-wrap desktop-only-table">
+                  <table class="usg-table">
+                    <thead>
+                      <tr>
+                        <th>Project / session</th>
+                        <th>Started</th>
+                        <th>Length</th>
+                        <th>Tokens (in / out / cached)</th>
+                        <th>Est. cost</th>
+                        <th>Models</th>
+                      </tr>
+                    </thead>
+                    <tbody id="usage-sessions"></tbody>
+                  </table>
+                </div>
+                <div id="usage-sessions-empty" class="muted empty-note hidden">No sessions match your search.</div>
+                <div class="usg-pagination">
+                  <span id="usage-sessions-summary" class="muted"></span>
+                  <div class="usg-pagination-controls">
+                    <button id="usage-page-prev" class="sidebar-icon-btn" type="button" aria-label="Previous page">‹</button>
+                    <span id="usage-page-info" class="muted"></span>
+                    <button id="usage-page-next" class="sidebar-icon-btn" type="button" aria-label="Next page">›</button>
+                  </div>
+                </div>
+              </section>
+
+              <p id="usage-meta" class="muted usage-meta"></p>
+            </div>
+          </section>
+
+          <!-- Sustainability -->
+          <section id="page-sustainability" class="page hidden">
+            <header class="sus-header">
+              <h1 class="page-title">Sustainability</h1>
+              <p class="muted page-subtitle">
+                Real numbers from prompts you've checked on this device. Sending fewer exploration tokens means less
+                compute burned per request.
+              </p>
+            </header>
+
+            <div class="sus-metrics">
+              <div class="sus-metric">
+                <div class="sus-metric-top">
+                  <span class="sus-metric-icon">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z" />
+                    </svg>
+                  </span>
+                  <span class="sus-metric-label">Prompts optimized</span>
+                </div>
+                <span class="sus-metric-value" id="sustain-captures">0</span>
+                <span class="sus-metric-sub">Checked on this device</span>
+              </div>
+              <div class="sus-metric sus-metric-accent">
+                <div class="sus-metric-top">
+                  <span class="sus-metric-icon">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="m12 2 9 5-9 5-9-5 9-5Z" />
+                      <path d="m3 12 9 5 9-5" />
+                    </svg>
+                  </span>
+                  <span class="sus-metric-label">Tokens saved</span>
+                </div>
+                <span class="sus-metric-value" id="sustain-tokens-saved">0</span>
+                <span class="sus-metric-sub">Exploration cost avoided</span>
+              </div>
+              <div class="sus-metric">
+                <div class="sus-metric-top">
+                  <span class="sus-metric-icon">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="m3 17 6-6 4 4 7-7" /><path d="M14 8h6v6" />
+                    </svg>
+                  </span>
+                  <span class="sus-metric-label">Average reduction</span>
+                </div>
+                <span class="sus-metric-value" id="sustain-avg-pct">0%</span>
+                <span class="sus-metric-sub">Per checked prompt</span>
+              </div>
+              <div class="sus-metric">
+                <div class="sus-metric-top">
+                  <span class="sus-metric-icon">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M11 20A7 7 0 0 1 4 13c0-4 3-9 10-11 1 6 1 10-1 13a6.97 6.97 0 0 1-2 5Z" />
+                      <path d="M9.5 14.5 18 6" />
+                    </svg>
+                  </span>
+                  <span class="sus-metric-label">Environmental impact</span>
+                </div>
+                <span class="sus-metric-value" id="sustain-co2-saved">0g</span>
+                <span class="sus-metric-sub">Est. CO&#8322; avoided, illustrative</span>
+              </div>
+            </div>
+
+            <div class="sus-summary-card">
+              <div class="sus-summary-icon" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 22c-4-1-7-4.5-7-9 0-5 3-9 7-11 4 2 7 6 7 11 0 4.5-3 8-7 9Z" />
+                  <path d="M12 22V11" />
+                </svg>
+              </div>
+              <div class="sus-summary-body">
+                <h2 class="sus-summary-title">&#127793; Your AI Efficiency</h2>
+                <p class="sus-summary-text" id="sus-summary-text">
+                  Check your first prompt to start building your efficiency story.
+                </p>
+              </div>
+            </div>
+
+            <div id="sustain-empty" class="empty-state sus-empty hidden">
+              <div class="sus-empty-decoration" aria-hidden="true"></div>
+              <div class="empty-state-icon-frame sus-empty-icon-frame">
+                <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 20A7 7 0 0 1 4 13c0-4 3-9 10-11 1 6 1 10-1 13a6.97 6.97 0 0 1-2 5Z" />
+                  <path d="M9.5 14.5 18 6" />
+                </svg>
+              </div>
+              <p class="empty-state-title">No sustainability data yet</p>
+              <p class="muted sus-empty-text">
+                Run your first prompt analysis to begin tracking your efficiency improvements and environmental
+                impact.
+              </p>
+              <div class="sus-empty-actions">
+                <button id="sus-btn-analyze" class="ov-btn-primary" type="button">
+                  <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z" />
+                  </svg>
+                  Analyze a Prompt
+                </button>
+                <a href="#sus-learn" id="sus-link-learn" class="link-btn">Learn about Sustainability</a>
+              </div>
+            </div>
+
+            <div id="sustain-history-block" class="section-block hidden">
+              <div class="sus-charts">
+                <div class="sus-chart-card">
+                  <div class="sus-chart-header">
+                    <span>Weekly Token Savings</span>
+                  </div>
+                  <div class="sus-chart-skeleton sus-chart-skeleton-bars" aria-hidden="true">
+                    <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+                  </div>
+                  <p class="sus-chart-note muted">Coming soon</p>
+                </div>
+                <div class="sus-chart-card">
+                  <div class="sus-chart-header">
+                    <span>Optimization Trend</span>
+                  </div>
+                  <div class="sus-chart-skeleton sus-chart-skeleton-line" aria-hidden="true"></div>
+                  <p class="sus-chart-note muted">Coming soon</p>
+                </div>
+                <div class="sus-chart-card">
+                  <div class="sus-chart-header">
+                    <span>Efficiency Score</span>
+                  </div>
+                  <div class="sus-chart-skeleton sus-chart-skeleton-ring" aria-hidden="true"></div>
+                  <p class="sus-chart-note muted">Coming soon</p>
+                </div>
+              </div>
+
+              <div class="section-header">
+                <h2>Recent optimizations</h2>
+              </div>
+              <ul id="sustain-history-list" class="activity-list"></ul>
+            </div>
+
+            <section id="sus-learn" class="sus-learn-card" aria-labelledby="sus-learn-title">
+              <h2 id="sus-learn-title" class="sus-learn-title">Why this matters</h2>
+              <p class="sus-learn-text">
+                Shorter, more focused prompts mean the AI explores fewer files and burns fewer tokens getting to an
+                answer. That reduces inference cost, lowers the compute each request needs, and gets you a faster,
+                more relevant response.
+              </p>
+              <ul class="sus-learn-points">
+                <li>
+                  <span class="sus-learn-point-icon" aria-hidden="true">
+                    <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="m12 2 9 5-9 5-9-5 9-5Z" /><path d="m3 12 9 5 9-5" />
+                    </svg>
+                  </span>
+                  Fewer tokens sent means less compute burned per request
+                </li>
+                <li>
+                  <span class="sus-learn-point-icon" aria-hidden="true">
+                    <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z" />
+                    </svg>
+                  </span>
+                  A tighter scope keeps the AI from wandering across your whole codebase
+                </li>
+                <li>
+                  <span class="sus-learn-point-icon" aria-hidden="true">
+                    <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="m3 17 6-6 4 4 7-7" /><path d="M14 8h6v6" />
+                    </svg>
+                  </span>
+                  Lower token cost, same or better results
+                </li>
+              </ul>
+            </section>
+          </section>
+
+          <!-- Settings -->
+          <section id="page-settings" class="page hidden">
+            <header class="set-header">
+              <h1 class="page-title">Settings</h1>
+              <p class="muted page-subtitle">
+                Manage your account, application preferences, integrations, and accessibility.
+              </p>
+            </header>
+
+            <!-- Account -->
+            <section class="set-card set-account-card" aria-labelledby="set-title-account">
+              <div class="set-section-title" id="set-title-account">
+                <span class="set-section-icon">
+                  <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z" /><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7" />
+                  </svg>
+                </span>
+                <h2>Account</h2>
+              </div>
+
+              <div class="set-identity">
+                <div class="set-avatar">
+                  <span id="settings-avatar-initial">?</span>
+                </div>
+                <div class="set-identity-info">
+                  <div id="settings-name-display" class="set-name-row">
+                    <span id="settings-identity-name" class="set-identity-name"></span>
+                    <span class="set-badge-signed-in">
+                      <svg class="icon icon-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 6 9 17l-5-5" />
+                      </svg>
+                      Signed in
+                    </span>
+                  </div>
+                  <form id="settings-name-form" class="settings-name-form hidden">
+                    <input id="settings-name-input" class="set-input" type="text" maxlength="100" autocomplete="off" aria-label="Display name" />
+                    <button type="submit" class="ov-btn-primary">Save</button>
+                    <button type="button" id="btn-cancel-name" class="link-btn">Cancel</button>
+                  </form>
+                  <div id="settings-identity-email" class="set-identity-email muted"></div>
+                </div>
+                <button id="btn-edit-name" class="ov-btn-secondary set-edit-btn" type="button">
+                  <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                    <path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4Z" />
+                  </svg>
+                  Edit profile
+                </button>
+              </div>
+              <div id="settings-name-error" class="alert hidden"></div>
+            </section>
+
+            <!-- Appearance -->
+            <section class="set-card" aria-labelledby="set-title-appearance">
+              <div class="set-section-title" id="set-title-appearance">
+                <span class="set-section-icon">
+                  <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 3a9 9 0 1 0 0 18c1.5 0 2-1 2-2 0-.6-.3-1-.6-1.4-.3-.4-.6-.8-.6-1.3 0-.8.7-1.3 1.5-1.3H16a4 4 0 0 0 4-4c0-4.4-3.6-8-8-8Z" />
+                    <circle cx="7.5" cy="10.5" r=".9" fill="currentColor" stroke="none" />
+                    <circle cx="9.5" cy="7" r=".9" fill="currentColor" stroke="none" />
+                    <circle cx="14.5" cy="7" r=".9" fill="currentColor" stroke="none" />
+                    <circle cx="16.5" cy="10.5" r=".9" fill="currentColor" stroke="none" />
+                  </svg>
+                </span>
+                <h2>Appearance</h2>
+              </div>
+
+              <div class="set-rows">
+                <div class="set-row">
+                  <div class="set-row-left">
+                    <span class="set-row-icon">
+                      <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+                      </svg>
+                    </span>
+                    <div class="set-row-text">
+                      <span class="set-row-title">Theme</span>
+                      <span class="set-row-desc">Switch the whole app between light and dark.</span>
+                    </div>
+                  </div>
+                  <button id="btn-toggle-theme" class="set-toggle-pill">
+                    <svg id="theme-toggle-icon" class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></svg>
+                    <span id="theme-toggle-label">Dark</span>
+                  </button>
+                </div>
+
+                <div class="set-row">
+                  <div class="set-row-left">
+                    <span class="set-row-icon">
+                      <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="6" width="20" height="12" rx="2" /><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M6 14h12" />
+                      </svg>
+                    </span>
+                    <div class="set-row-text">
+                      <span class="set-row-title">Capture hotkey</span>
+                      <span class="set-row-desc">Opens the quick-capture popup from any app.</span>
+                    </div>
+                  </div>
+                  <span id="settings-hotkey-label" class="set-row-value set-kbd"></span>
+                </div>
+              </div>
+            </section>
+
+            <!-- Project Intelligence (Typesense) -->
+            <section class="set-card" aria-labelledby="set-title-typesense">
+              <div class="set-section-title" id="set-title-typesense">
+                <span class="set-section-icon">
+                  <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" />
+                  </svg>
+                </span>
+                <h2>Project Intelligence</h2>
+              </div>
+              <p class="muted set-section-sub">
+                Optional Typesense search improves file discovery for prompts. Local mode is recommended for full code indexing. Cloud indexing of source code requires explicit consent.
+              </p>
+
+              <div class="set-rows">
+                <div class="set-row">
+                  <div class="set-row-left">
+                    <span class="set-row-icon">
+                      <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 3 5 6v5c0 4.5 3 8 7 10 4-2 7-5.5 7-10V6l-7-3Z" />
+                      </svg>
+                    </span>
+                    <div class="set-row-text">
+                      <span class="set-row-title">Connection</span>
+                      <span id="ts-status-desc" class="set-row-desc">Checking…</span>
+                    </div>
+                  </div>
+                  <span id="ts-status-pill" class="set-permission-pill muted">…</span>
+                </div>
+
+                <div class="set-row">
+                  <div class="set-row-left">
+                    <span class="set-row-icon">
+                      <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 7h16M4 12h10M4 17h7" />
+                      </svg>
+                    </span>
+                    <div class="set-row-text">
+                      <span class="set-row-title">Mode</span>
+                      <span class="set-row-desc">Off disables Typesense. Local indexes full code. Cloud is metadata-only unless you consent.</span>
+                    </div>
+                  </div>
+                  <select id="ts-mode-select" class="set-select" aria-label="Typesense mode">
+                    <option value="off">Off</option>
+                    <option value="local">Local</option>
+                    <option value="cloud">Cloud</option>
+                  </select>
+                </div>
+
+                <div class="set-row">
+                  <div class="set-row-left">
+                    <span class="set-row-icon">
+                      <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 7h18v10H3z" /><path d="M7 7V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2" />
+                      </svg>
+                    </span>
+                    <div class="set-row-text">
+                      <span class="set-row-title">Index status</span>
+                      <span id="ts-index-desc" class="set-row-desc">No project indexed yet.</span>
+                    </div>
+                  </div>
+                  <button id="btn-ts-reindex" class="ov-btn-secondary" type="button">Reindex</button>
+                </div>
+
+                <div class="set-row">
+                  <div class="set-row-left">
+                    <span class="set-row-icon">
+                      <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 3v18M3 12h18" />
+                      </svg>
+                    </span>
+                    <div class="set-row-text">
+                      <span class="set-row-title">Conceptual search</span>
+                      <span class="set-row-desc">Expand vague prompts with synonyms (e.g. “tokens consumed” → usage files). Keyword search stays the default.</span>
+                    </div>
+                  </div>
+                  <div class="set-switch-control">
+                    <span id="ts-hybrid-label" class="set-switch-state muted">Off</span>
+                    <button id="btn-ts-hybrid" class="set-switch" role="switch" aria-checked="false" aria-label="Conceptual search"></button>
+                  </div>
+                </div>
+              </div>
+
+              <div id="ts-cloud-consent" class="ts-cloud-consent hidden">
+                <label class="ts-consent-label">
+                  <input id="ts-cloud-code-consent" type="checkbox" />
+                  <span>
+                    I understand cloud mode will upload source-code content to my Typesense host, and I consent to indexing project contents.
+                  </span>
+                </label>
+              </div>
+
+              <div class="set-repo-block">
+                <label class="set-row-title" for="ts-host-input">Typesense host</label>
+                <div class="set-repo-input-row">
+                  <select id="ts-protocol-select" class="set-select ts-protocol" aria-label="Protocol">
+                    <option value="http">http</option>
+                    <option value="https">https</option>
+                  </select>
+                  <input id="ts-host-input" class="set-input" type="text" placeholder="localhost" autocomplete="off" />
+                  <input id="ts-port-input" class="set-input ts-port" type="text" placeholder="8108" autocomplete="off" aria-label="Port" />
+                  <button id="btn-ts-save" class="ov-btn-primary" type="button">Save</button>
+                </div>
+                <label class="set-row-title" for="ts-api-key-input">API key</label>
+                <input id="ts-api-key-input" class="set-input" type="password" placeholder="Stored securely — leave blank to keep current" autocomplete="off" />
+                <p id="ts-config-status" class="muted set-repo-status">Key never leaves the main process.</p>
+              </div>
+            </section>
+
+            <!-- Capture & Integrations -->
+            <section class="set-card" aria-labelledby="set-title-capture">
+              <div class="set-section-title" id="set-title-capture">
+                <span class="set-section-icon">
+                  <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z" />
+                  </svg>
+                </span>
+                <h2>Capture &amp; Integrations</h2>
+              </div>
+
+              <div class="set-rows">
+                <div class="set-row">
+                  <div class="set-row-left">
+                    <span class="set-row-icon">
+                      <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z" />
+                      </svg>
+                    </span>
+                    <div class="set-row-text">
+                      <span class="set-row-title">Auto-capture</span>
+                      <span class="set-row-desc">
+                        Watch your clipboard in coding apps and pop a focused rewrite automatically.
+                      </span>
+                    </div>
+                  </div>
+                  <div class="set-switch-control">
+                    <span id="autocapture-label" class="set-switch-state muted">Off</span>
+                    <button id="btn-autocapture" class="set-switch" role="switch" aria-checked="false" aria-label="Auto-capture"></button>
+                  </div>
+                </div>
+
+                <div class="set-row">
+                  <div class="set-row-left">
+                    <span class="set-row-icon">
+                      <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 3 5 6v5c0 4.5 3 8 7 10 4-2 7-5.5 7-10V6l-7-3Z" />
+                      </svg>
+                    </span>
+                    <div class="set-row-text">
+                      <span class="set-row-title">Accessibility permission</span>
+                      <span class="set-row-desc">Required by the OS so Metriq can read copied text.</span>
+                    </div>
+                  </div>
+                  <button type="button" id="autocapture-permission" class="set-permission-pill muted">Checking…</button>
+                </div>
+
+                <div class="set-row">
+                  <div class="set-row-left">
+                    <span class="set-row-icon">
+                      <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m4 17 6-6-6-6M12 19h8" />
+                      </svg>
+                    </span>
+                    <div class="set-row-text">
+                      <span class="set-row-title">Terminal agent capture</span>
+                      <span class="set-row-desc">
+                        For Claude Code / Codex run via <code>metriq-wrap</code>: detect the draft as you
+                        type and let approved rewrites be inserted directly into the terminal.
+                      </span>
+                    </div>
+                  </div>
+                  <div class="set-switch-control">
+                    <span id="terminalwrap-label" class="set-switch-state muted">Off</span>
+                    <button id="btn-terminalwrap" class="set-switch" role="switch" aria-checked="false" aria-label="Terminal agent capture"></button>
+                  </div>
+                </div>
+
+                <div class="set-row">
+                  <div class="set-row-left">
+                    <span class="set-row-icon">
+                      <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M8 9v6M16 9v6M4 5h16v14H4z" />
+                      </svg>
+                    </span>
+                    <div class="set-row-text">
+                      <span class="set-row-title">Editor capture (Cursor / VS Code)</span>
+                      <span class="set-row-desc">
+                        macOS only. Detect the draft as you type in Cursor or VS Code's chat panel and
+                        insert an approved rewrite directly back in. Uses the accessibility permission.
+                      </span>
+                    </div>
+                  </div>
+                  <div class="set-switch-control">
+                    <span id="editorcapture-label" class="set-switch-state muted">Off</span>
+                    <button id="btn-editorcapture" class="set-switch" role="switch" aria-checked="false" aria-label="Editor capture"></button>
+                  </div>
+                </div>
+
+                <div class="set-row">
+                  <div class="set-row-left">
+                    <span class="set-row-icon">
+                      <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 3v3M12 18v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M3 12h3M18 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" /><circle cx="12" cy="12" r="4" />
+                      </svg>
+                    </span>
+                    <div class="set-row-text">
+                      <span class="set-row-title">AI-tailored rewrite</span>
+                      <span class="set-row-desc">
+                        Use your own Claude API key to tailor the rewrite to what you're actually
+                        asking, instead of the offline template.
+                      </span>
+                    </div>
+                  </div>
+                  <div class="set-switch-control">
+                    <span id="airewrite-label" class="set-switch-state muted">Off</span>
+                    <button id="btn-airewrite" class="set-switch" role="switch" aria-checked="false" aria-label="AI-tailored rewrite"></button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="set-repo-block">
+                <label class="set-row-title" for="ai-key-input">Claude API key</label>
+                <div class="set-repo-input-row">
+                  <input id="ai-key-input" class="set-input" type="password" placeholder="sk-ant-..." autocomplete="off" spellcheck="false" />
+                  <button id="btn-toggle-ai-key" type="button" class="ov-btn-secondary">Show</button>
+                </div>
+                <div class="set-repo-input-row" style="margin-top: var(--space-2);">
+                  <select id="ai-model-select" class="set-input"></select>
+                </div>
+                <div class="set-repo-input-row" style="margin-top: var(--space-2);">
+                  <button id="btn-save-ai-key" class="ov-btn-primary">Save</button>
+                  <button id="btn-test-ai-key" type="button" class="ov-btn-secondary">Test key</button>
+                </div>
+                <p id="ai-key-status" class="muted set-repo-status">Get a key at console.anthropic.com.</p>
+              </div>
+
+              <div class="set-repo-block">
+                <label class="set-row-title" for="capture-repo-input">GitHub repository</label>
+                <div class="set-repo-input-row">
+                  <input id="capture-repo-input" class="set-input" type="text" placeholder="github.com/owner/repo" autocomplete="off" />
+                  <button id="btn-save-repo" class="ov-btn-primary">Save</button>
+                </div>
+                <p id="capture-repo-status" class="muted set-repo-status">Files from this repository help improve suggestions.</p>
+              </div>
+
+              <p class="muted set-disclosure">
+                Off by default. When on, copy your prompt (Ctrl+C) from a coding app, like Cursor, VS
+                Code, or a terminal, and a small popup shows a focused rewrite to paste back. It
+                ignores copies from other apps, reads only your clipboard locally, and never
+                records your screen.
+              </p>
+              <p class="muted set-disclosure">
+                Terminal agent capture is a separate, off-by-default mechanism: it only sees text
+                typed inside a session you explicitly start with <code>metriq-wrap claude</code> or
+                <code>metriq-wrap codex</code> — nothing outside that terminal session, no screen
+                reading, no OS permission required. See the desktop README for setup.
+              </p>
+              <p class="muted set-disclosure">
+                Editor capture reads only the currently-focused text field in Cursor/VS Code via the
+                macOS accessibility API (not a screenshot or screen recording), and only while that
+                app is frontmost. Inserting a rewrite brings the app to the foreground and replaces
+                the field's contents — Metriq re-checks the field is unchanged immediately before
+                writing, but on a genuine timing race it's possible for an insert to land somewhere
+                unintended. Off by default; available on macOS only.
+              </p>
+              <p class="muted set-disclosure">
+                AI-tailored rewrite sends your draft prompt directly to Anthropic's API using the
+                key you provide — never through Metriq's own servers. The key is encrypted at rest
+                via your OS keychain, the same guarantee as your login session, and is never
+                displayed again after saving. Off by default, and always falls back to the offline
+                rewrite with no network call if disabled, unset, or unreachable.
+              </p>
+            </section>
+
+            <!-- Accessibility -->
+            <section class="set-card" aria-labelledby="set-title-a11y">
+              <div class="set-section-title" id="set-title-a11y">
+                <span class="set-section-icon">
+                  <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="9" /><path d="M12 7v3M8 10h8M12 10v4l-2.5 4M12 14l2.5 4" />
+                  </svg>
+                </span>
+                <h2>Accessibility</h2>
+              </div>
+              <p class="muted set-section-sub">
+                Each option defaults to your system setting until you choose explicitly.
+              </p>
+              <div id="accessibility-list" class="a11y-list"></div>
+            </section>
+
+            <!-- About -->
+            <section class="set-card" aria-labelledby="set-title-about">
+              <div class="set-section-title" id="set-title-about">
+                <span class="set-section-icon">
+                  <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="9" /><path d="M12 8h.01M11 12h1v5h1" />
+                  </svg>
+                </span>
+                <h2>About</h2>
+              </div>
+
+              <div class="set-rows">
+                <div class="set-row">
+                  <div class="set-row-left">
+                    <span class="set-row-icon">
+                      <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m12 2 9 5-9 5-9-5 9-5Z" /><path d="m3 12 9 5 9-5" />
+                      </svg>
+                    </span>
+                    <div class="set-row-text">
+                      <span class="set-row-title">Version</span>
+                      <span class="set-row-desc">Current build of the desktop app.</span>
+                    </div>
+                  </div>
+                  <span class="set-row-value">0.1.0</span>
+                </div>
+
+                <div class="set-row">
+                  <div class="set-row-left">
+                    <span class="set-row-icon">
+                      <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2C6.5 2 2 6.5 2 12c0 4.4 2.9 8.2 6.8 9.5.5.1.7-.2.7-.5v-1.7c-2.8.6-3.4-1.3-3.4-1.3-.5-1.1-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.5 2.3 1.1 2.9.8.1-.6.3-1.1.6-1.3-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.5-1.3.1-2.6 0 0 .8-.3 2.7 1a9.4 9.4 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .6 1.3.2 2.3.1 2.6.6.7 1 1.6 1 2.7 0 3.9-2.4 4.7-4.6 5 .4.3.7.9.7 1.9v2.8c0 .3.2.6.7.5A10 10 0 0 0 22 12c0-5.5-4.5-10-10-10Z" fill="currentColor" stroke="none" />
+                      </svg>
+                    </span>
+                    <div class="set-row-text">
+                      <span class="set-row-title">Documentation</span>
+                      <span class="set-row-desc">Source, setup guide, and README on GitHub.</span>
+                    </div>
+                  </div>
+                  <button type="button" id="btn-settings-docs" class="link-btn set-external-btn">
+                    Open
+                    <svg class="icon icon-xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M7 17 17 7M8 7h9v9" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </section>
+
+            <div class="settings-danger-zone">
+              <button id="btn-logout" class="btn btn-danger-outline">Log out</button>
+            </div>
+          </section>
+        </div>
+        </div>
+      </div>
+    </main>
+    <script src="renderer.js"></script>
+  </body>
+</html>

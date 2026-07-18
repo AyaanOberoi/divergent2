@@ -1,0 +1,58 @@
+{
+  "name": "metriq-desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Metriq desktop app — links a project, drafts prompts, and analyzes them against the real codebase before you send them to Claude, ChatGPT, Cursor, or VS Code.",
+  "main": "src/main.js",
+  "type": "commonjs",
+  "bin": {
+    "metriq-wrap": "bin/metriq-wrap.js"
+  },
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test",
+    "postinstall": "node scripts/fix-node-pty-perms.js",
+    "package:mac": "electron-builder --mac",
+    "package:win": "electron-builder --win",
+    "package:linux": "electron-builder --linux"
+  },
+  "dependencies": {
+    "node-pty": "^1.0.0"
+  },
+  "devDependencies": {
+    "electron": "^43.1.0",
+    "electron-builder": "^25.1.8"
+  },
+  "license": "MIT",
+  "build": {
+    "appId": "app.metriq.desktop",
+    "productName": "Metriq",
+    "files": ["src/**/*", "renderer/**/*", "bin/**/*", "package.json"],
+    "extraResources": [
+      { "from": "../packages/core", "to": "packages/core" },
+      { "from": "../packages/optimize", "to": "packages/optimize" },
+      { "from": "../src/core/usage", "to": "src/core/usage" }
+    ],
+    "protocols": {
+      "name": "Metriq Auth Callback",
+      "schemes": ["metriq"]
+    },
+    "mac": {
+      "icon": "renderer/assets/icon.icns",
+      "category": "public.app-category.developer-tools",
+      "target": "zip",
+      "artifactName": "Metriq-macOS.zip"
+    },
+    "win": {
+      "icon": "renderer/assets/icon.png",
+      "target": [{ "target": "zip", "arch": ["x64"] }],
+      "artifactName": "Metriq-Windows.zip"
+    },
+    "linux": {
+      "icon": "renderer/assets/icon.png",
+      "category": "Development",
+      "target": [{ "target": "AppImage", "arch": ["x64"] }],
+      "artifactName": "Metriq-Linux.AppImage"
+    }
+  }
+}

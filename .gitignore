@@ -1,0 +1,37 @@
+node_modules/
+*.log
+.DS_Store
+.tokenpilot/
+examples/demo-app/
+
+# Local Claude Code settings
+.claude/settings.local.json
+
+# Build / deploy artifacts & secrets (also covered by web/.gitignore)
+.next/
+.vercel
+.env*
+*.tgz
+
+# Electron packaging output (desktop/dist/*.app etc.) — built locally via
+# `npm run package:mac`, never committed. Contains 100MB+ framework
+# binaries that exceed GitHub's file size limit.
+desktop/dist/
+desktop/*.app/
+
+# InsForge & AI agent skills
+.insforge
+.agent
+.agents
+.augment
+.claude
+.cline
+.github/copilot*
+.kilocode
+.qoder
+.qwen
+.roo
+.trae
+.windsurf
+
+metriq-chrome-extension-*.zip
