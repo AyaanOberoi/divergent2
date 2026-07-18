@@ -2877,6 +2877,11 @@ button.ov-insight:hover {
   gap: 5px;
 }
 
+.usg-bars-lg.is-dense {
+  gap: 1px;
+  padding-inline: var(--space-2);
+}
+
 .usage-daily-labels {
   position: relative;
   z-index: 1;

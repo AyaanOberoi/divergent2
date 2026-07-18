@@ -1886,8 +1886,12 @@
   }
 
   function renderUsageChart(data) {
-    const daily = (data.daily || []).length > 45 ? data.daily.filter((_, index) => index % 2 === 0) : (data.daily || []);
+    // Keep every calendar bucket. The old every-other-day sampling always
+    // dropped the newest day in a 90-day payload, leaving the chart stale even
+    // while the headline totals updated.
+    const daily = data.daily || [];
     const chartMax = Math.max(1, ...daily.map((day) => day.totalTokens || 0));
+    usageDailyChart.classList.toggle("is-dense", daily.length > 45);
     usageChartLegend.innerHTML = "";
     USG_DAILY_STACK.forEach((segment) => {
       const item = document.createElement("span");

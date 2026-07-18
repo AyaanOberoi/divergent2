@@ -5,7 +5,6 @@ const NAV_ITEMS = [
   { key: "optimize", label: "Optimize", href: "/optimize", icon: "auto_fix_high" },
   { key: "prompt-studio", label: "Prompt Studio", href: "/prompt-studio", icon: "bolt" },
   { key: "sessions", label: "Sessions", href: "/sessions", icon: "history" },
-  { key: "sustainability", label: "Sustainability", href: "/sustainability", icon: "eco" },
   // ?landing=1 bypasses the auto-redirect to /usage for local users.
   { key: "overview", label: "Landing page", href: "/?landing=1", icon: "home" },
 ];

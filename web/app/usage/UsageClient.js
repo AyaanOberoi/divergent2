@@ -427,9 +427,10 @@ export default function UsageClient() {
   const pagedSessions = filteredSessions.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   const chartDays = useMemo(() => {
-    const daily = payload?.daily || [];
-    // Cap the bar count so 90d stays readable.
-    return daily.length > 45 ? daily.filter((_, i) => i % 2 === 0) : daily;
+    // Keep every calendar bucket. Sampling every other item made the 90-day
+    // view permanently omit its newest day (index 89), so fresh usage changed
+    // the totals without changing the final chart bar.
+    return payload?.daily || [];
   }, [payload]);
   const chartMax = Math.max(1, ...chartDays.map((d) => d.totalTokens));
 
@@ -675,7 +676,7 @@ export default function UsageClient() {
             </div>
           </div>
 
-          <div className="usage-chart-3d h-56 flex items-end gap-[3px] relative">
+          <div className={`usage-chart-3d h-56 flex items-end relative ${chartDays.length > 45 ? "gap-px" : "gap-[3px]"}`}>
             <div className="usage-chart-grid-3d absolute inset-0 flex flex-col justify-between pointer-events-none opacity-20">
               <div className="w-full border-b border-border-subtle" />
               <div className="w-full border-b border-border-subtle" />
