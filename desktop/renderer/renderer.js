@@ -137,11 +137,35 @@
         icon: "shield",
         title: "Add a scope guard",
         desc: 'Saying what not to touch ("only change X") keeps the model from wandering the repo.',
+      },
+      {
+        icon: "zap",
+        title: "Try Prompt Studio",
+        desc: "Write and refine a prompt in a dedicated workspace before sending it anywhere.",
+        go: () => showPage("prompt-studio"),
+      },
+      {
+        icon: "folder",
+        title: "Connect a GitHub repo",
+        desc: "Add a repo URL in Settings so suggestions can name real files even without a local folder linked.",
+        go: () => showPage("settings"),
+      },
+      {
+        icon: "trendingUp",
+        title: "Check your Usage tab",
+        desc: "See per-session token costs and where your AI coding spend is actually going.",
+        go: () => showPage("usage"),
+      },
+      {
+        icon: "lightbulb",
+        title: "Turn on AI-tailored rewrite",
+        desc: "Add your Claude API key in Settings to tailor rewrites to what you're actually asking, not just a template.",
+        go: () => showPage("settings"),
       }
     );
 
     ovInsights.innerHTML = "";
-    for (const s of suggestions.slice(0, 4)) {
+    for (const s of suggestions.slice(0, 8)) {
       const row = document.createElement(s.go ? "button" : "div");
       row.className = "ov-insight" + (s.positive ? " is-positive" : "");
       if (s.go) row.type = "button";
