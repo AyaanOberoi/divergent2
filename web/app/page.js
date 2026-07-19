@@ -21,10 +21,10 @@ const RELEASES_URL = "https://github.com/khushcoding123/TokenTrackStuff/releases
 // asset with that exact filename — so publish the build named "Metriq-Windows.zip".
 const WIN_DOWNLOAD =
   "https://github.com/khushcoding123/TokenTrackStuff/releases/latest/download/Metriq-Windows.zip";
-// Same one-click pattern for the macOS installer — publish the build named
-// "Metriq.dmg" and this always resolves to the newest release's copy.
+// Same one-click pattern for the macOS build — publish the build named
+// "Metriq-macOS.zip" and this always resolves to the newest release's copy.
 const MAC_DOWNLOAD =
-  "https://github.com/khushcoding123/TokenTrackStuff/releases/latest/download/Metriq.dmg";
+  "https://github.com/khushcoding123/TokenTrackStuff/releases/latest/download/Metriq-macOS.zip";
 
 export const metadata = { title: "Metriq focuses your prompts before you send them" };
 
